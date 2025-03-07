@@ -1,38 +1,50 @@
-import Scenario.BankAccount;
-import Scenario.BankTransaction;
+import Scenario.Customer;
+import Scenario.Shop;
 /*
 Lab work for parallel computing course
-It simulates the race condition when two threads access shared resources(critical section) without any solutions,
-additionally it shows thread synchronization to solve the issue.
+It simulates a shop with a stock array of various products and customers that are able to buy from it if the stock is available
 Author: Simonas Jaunius Urbutis
  */
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         if (args.length == 0) {
             System.out.println("Please provide either s or ns as a command line argument");
-        } else {
-            // Synchronized scenario, race condition not raised
+        }else if(args[0].equals("s") || args[0].equals("ns")) {
+            Shop shop = new Shop(10);
+            // without sleep possible race condition happens at 100000, not always
+            int numberOfCustomers = 30000;
+            int transactionsPerCustomer = 100;
+            int amountToRestock = 1000;
+            Thread[] threads = new Thread[numberOfCustomers];
+            for (int i = 0; i < 10; i++) {
+                shop.restock(i, amountToRestock);
+            }
             if(args[0].equals("s")){
-                System.out.println("Synchronized thread scenario:");
-                BankAccount accountTwo = new BankAccount(100);
-                Thread t1 = new Thread(new BankTransaction(accountTwo, true), "ThreadThree");
-                Thread t2 = new Thread(new BankTransaction(accountTwo, true), "ThreadFour");
-                System.out.println("Starting balance(AccountOne): " + accountTwo.getBalance());
-                t1.start();
-                t2.start();
+                for (int i = 0; i < numberOfCustomers; i++) {
+                    threads[i] = new Thread(new Customer(shop, transactionsPerCustomer, true));
+                    threads[i].start();
+
+                }
+            }else if(args[0].equals("ns")){
+                for (int i = 0; i < numberOfCustomers; i++) {
+                    threads[i] = new Thread(new Customer(shop, transactionsPerCustomer, false));
+                    threads[i].start();
+                }
             }
-            // Not-Synchronized scenario, race condition raised
-            else if(args[0].equals("ns")){
-                System.out.println("Not-Synchronized thread scenario:");
-                BankAccount accountOne = new BankAccount(100);
-                Thread t1 = new Thread(new BankTransaction(accountOne, false), "ThreadOne");
-                Thread t2 = new Thread(new BankTransaction(accountOne, false), "ThreadTwo");
-                System.out.println("Starting balance(AccountOne): " + accountOne.getBalance());
-                t1.start();
-                t2.start();
-            } else{
-                System.out.println("Please provide a valid command line argument!!");
+
+            for (int i = 0; i < numberOfCustomers; i++) {
+                threads[i].join();
             }
+            int processors = Runtime.getRuntime().availableProcessors();
+            System.out.println("threads at a time: " + processors);
+            System.out.println("----------------------------------------------------------");
+            System.out.println("Initial restocked value of each item was: " + amountToRestock);
+            System.out.println("----------------------------------------------------------");
+            shop.printStock();
+            System.out.println("----------------------------------------------------------");
+
+        } else {
+            System.out.println("Please provide a valid command line argument!");
         }
     }
 }
