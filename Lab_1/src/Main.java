@@ -1,12 +1,12 @@
 import Scenario.Customer;
 import Scenario.Shop;
 /*
-Lab work for parallel computing course
+Lab work 1 for parallel computing course
 It simulates a shop with a stock array of various products and customers that are able to buy from it if the stock is available
 Author: Simonas Jaunius Urbutis
  */
 public class Main {
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException{
         if (args.length == 0) {
             System.out.println("Please provide either s or ns as a command line argument");
         }else if(args[0].equals("s") || args[0].equals("ns")) {

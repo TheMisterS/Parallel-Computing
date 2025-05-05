@@ -32,23 +32,23 @@ public class Elevator {
         this.currentDirection = currentDirection;
     }
 
-    public synchronized void enterElevator(String direction) throws InterruptedException {
+    public synchronized void enterElevator(String direction) throws InterruptedException{
         // Semafore function P(S)
-        while (!currentDirection.equals("NONE") && !currentDirection.equals(direction) || currentPassengers >= maxPassengers) {
+        while ((currentPassengers > 0 && !currentDirection.equals(direction)) || currentPassengers >= maxPassengers) {
             wait();
         }
         currentDirection = direction;
         currentPassengers++;
-        System.out.println("[ELEVATOR]:Passenger entering elevator in direction: " + direction + ", Passenger count inside elevator: " + currentPassengers);
+        // System.out.println("[ELEVATOR]:Passenger entering elevator in direction: " + direction + ", Passenger count inside elevator: " + currentPassengers);
     }
 
     // Semafore function V(S)
-    public synchronized void exitElevator() {
+    public synchronized void exitElevator(){
         currentPassengers--;
-        System.out.println("[ELEVATOR]:Passenger exiting elevator, Remaining: " + currentPassengers);
-        if (currentPassengers == 0) {
+        //System.out.println("[ELEVATOR]:Passenger exiting elevator, Remaining: " + currentPassengers);
+        if (currentPassengers == 0){
             currentDirection = "NONE";
-            System.out.println("[ELEVATOR]: ELEVATOR IS EMPTY!");
+            // System.out.println("[ELEVATOR]: ELEVATOR IS EMPTY!");
         }
         notifyAll();
     }
